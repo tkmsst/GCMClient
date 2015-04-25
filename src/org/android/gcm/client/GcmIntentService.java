@@ -44,9 +44,9 @@ import java.util.List;
  * wake lock.
  */
 public class GcmIntentService extends IntentService {
-    public static final int NOTIFICATION_ID = 1;
-    private NotificationManager mNotificationManager;
-
+	private static final boolean FULL_WAKE = true;
+	private static final int WAKE_TIME = 10000;
+	
     private String SIP_PACKAGE  = "com.csipsimple";
     private String SIP_ACTIVITY = "com.csipsimple.ui.SipHome";
 
@@ -82,29 +82,32 @@ public class GcmIntentService extends IntentService {
             }
         }
         // Launch the SIP application.
-        boolean answer = true;
-        if (intent != null) {
-            PowerManager mPowerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
-            boolean misScreenOn = mPowerManager.isScreenOn();
-            startActivity(getSipIntent(Intent.FLAG_ACTIVITY_NO_USER_ACTION
-                    | Intent.FLAG_ACTIVITY_NO_ANIMATION
-                    | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
-            SystemClock.sleep(10000);
-            if (!misScreenOn) {
-                for (int count = 0; count < 5; count++) {
-                    SystemClock.sleep(2000);
-                    if (!checkRunningSipProcess()) {
-                        answer = false;
-                        SystemClock.sleep(1000);
-                        break;
-                    }
+        boolean isAnswered = true;
+        PowerManager mPowerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
+        boolean misScreenOn = mPowerManager.isScreenOn();
+      	if (FULL_WAKE && !misScreenOn) {
+       		PowerManager.WakeLock mWakeLock = mPowerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK
+       		        | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
+       		mWakeLock.acquire(WAKE_TIME);
+       	}
+        startActivity(getSipIntent(Intent.FLAG_ACTIVITY_NO_USER_ACTION
+                | Intent.FLAG_ACTIVITY_NO_ANIMATION
+                | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
+        SystemClock.sleep(WAKE_TIME);
+        if (!misScreenOn) {
+            for (int count = 0; count < 5; count++) {
+                SystemClock.sleep(2000);
+                if (!checkRunningSipProcess()) {
+                    isAnswered = false;
+                    SystemClock.sleep(1000);
+                    break;
                 }
             }
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
         GcmBroadcastReceiver.completeWakefulIntent(intent);
         // Lock the device.
-        if (!answer) {
+        if (!isAnswered) {
             Intent lockIntent = new Intent(this, LockActivity.class);
             lockIntent.setClass(getApplicationContext(), LockActivity.class);
             lockIntent.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION
@@ -119,7 +122,7 @@ public class GcmIntentService extends IntentService {
     // This is just one simple example of what you might choose to do with
     // a GCM message.
     private void sendNotification(String msg) {
-        mNotificationManager = (NotificationManager)
+        NotificationManager mNotificationManager  = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         PendingIntent contentIntent = null;
@@ -140,7 +143,7 @@ public class GcmIntentService extends IntentService {
                         .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS);
 
         mBuilder.setContentIntent(contentIntent);
-        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        mNotificationManager.notify(1, mBuilder.build());
     }
 
     private Intent getSipIntent(int flags) {
