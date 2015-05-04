@@ -24,6 +24,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
@@ -44,7 +45,6 @@ import java.util.List;
  * wake lock.
  */
 public class GcmIntentService extends IntentService {
-	private static final boolean FULL_WAKE = true;
 	private static final int WAKE_TIME = 10000;
 	
     private String SIP_PACKAGE  = "com.csipsimple";
@@ -58,6 +58,9 @@ public class GcmIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        final SharedPreferences prefs = getSharedPreferences("gcmclient", Context.MODE_PRIVATE);
+        final boolean fullwake = prefs.getBoolean("full_wake", false);
+
         Bundle extras = intent.getExtras();
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         // The getMessageType() intent parameter must be the intent you received
@@ -85,7 +88,7 @@ public class GcmIntentService extends IntentService {
         boolean isAnswered = true;
         PowerManager mPowerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
         boolean misScreenOn = mPowerManager.isScreenOn();
-      	if (FULL_WAKE && !misScreenOn) {
+      	if (fullwake && !misScreenOn) {
        		PowerManager.WakeLock mWakeLock = mPowerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK
        		        | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
        		mWakeLock.acquire(WAKE_TIME);

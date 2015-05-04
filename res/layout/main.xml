@@ -14,18 +14,50 @@
   - under the License.
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="1">
+
+            <TableRow>
+                <TextView android:text="@string/sender_id" />
+                <EditText
+                    android:id="@+id/senderid"
+                    android:inputType="number"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="@string/server_url" />
+                <EditText
+                    android:id="@+id/serverurl"
+                    android:inputType="textUri"
+                    android:hint="yourserver.com/register.php" />
+            </TableRow>
+
+            <CheckBox android:id="@+id/fullwake"
+                android:text="@string/full_wake" />
+
+        </TableLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/regist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"
+                android:text="@string/regist" />
 
             <Button
                 android:id="@+id/send"
@@ -45,7 +77,12 @@
 
         <TextView
             android:id="@+id/display"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/regid"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
     </LinearLayout>

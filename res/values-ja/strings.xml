@@ -16,6 +16,10 @@
 <resources>
 
     <string name="app_name">GCM Client</string>
+    <string name="sender_id">プロジェクト番号</string>
+    <string name="server_url">サーバーURL</string>
+    <string name="full_wake">プッシュ受信時に画面を点灯する</string>
+    <string name="regist">登録</string>
     <string name="send">送信</string>
     <string name="clear">クリア</string>
     <string name="device_admin_description">画面のロックをGCM Clientに許可します</string>

@@ -27,6 +27,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -49,8 +51,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MainActivity extends Activity {
 
-    public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
+    private static final String PROPERTY_SDR_ID = "sender_id";
+    private static final String PROPERTY_SRV_URL = "server_url";
+    public static final String PROPERTY_FWL = "full_wake";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final int RESULT_ENABLE = 1;
@@ -59,8 +63,10 @@ public class MainActivity extends Activity {
      * Substitute you own sender ID here. This is the project number you got
      * from the API Console, as described in "Getting Started."
      */
-    String SENDER_ID = "Your-Sender-ID(Project-No)";
-    String SERVER_URL = "Your-Server-URL";
+    String regid;
+    String senderid;
+    String serverurl;
+    Boolean fullwake;
 
     /**
      * Tag used on log messages.
@@ -68,11 +74,14 @@ public class MainActivity extends Activity {
     static final String TAG = "GCM Client";
 
     TextView mDisplay;
+    EditText mRegid;
+    EditText editText1;
+    EditText editText2;
+    CheckBox checkBox;
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();
     Context context;
-
-    String regid;
+    SharedPreferences prefs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,17 +89,16 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.main);
         mDisplay = (TextView) findViewById(R.id.display);
+        mRegid = (EditText) findViewById(R.id.regid);
 
         context = getApplicationContext();
+        prefs = getGcmPreferences(context);
 
         // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
         if (checkPlayServices()) {
             gcm = GoogleCloudMessaging.getInstance(this);
             regid = getRegistrationId(context);
-
-            if (regid.isEmpty()) {
-                registerInBackground();
-            }
+            setParameters();
 
             DevicePolicyManager mDevicePolicyManager =
                     (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -151,11 +159,9 @@ public class MainActivity extends Activity {
      * Stores the registration ID and the app versionCode in the application's
      * {@code SharedPreferences}.
      *
-     * @param context application's context.
      * @param regId registration ID
      */
-    private void storeRegistrationId(Context context, String regId) {
-        final SharedPreferences prefs = getGcmPreferences(context);
+    private void storeRegistrationId(String regId) {
         int appVersion = getAppVersion(context);
         Log.i(TAG, "Saving regId on app version " + appVersion);
         SharedPreferences.Editor editor = prefs.edit();
@@ -173,7 +179,6 @@ public class MainActivity extends Activity {
      *         registration ID.
      */
     private String getRegistrationId(Context context) {
-        final SharedPreferences prefs = getGcmPreferences(context);
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
         if (registrationId.isEmpty()) {
             Log.i(TAG, "Registration not found.");
@@ -206,8 +211,8 @@ public class MainActivity extends Activity {
                     if (gcm == null) {
                         gcm = GoogleCloudMessaging.getInstance(context);
                     }
-                    regid = gcm.register(SENDER_ID);
-                    msg = getString(R.string.registered) + "\nID=" + regid;
+                    regid = gcm.register(senderid);
+                    msg = getString(R.string.registered) + "\nID=";
 
                     // You should send the registration ID to your server over HTTP, so it
                     // can use GCM/HTTP or CCS to send messages to your app.
@@ -218,7 +223,7 @@ public class MainActivity extends Activity {
                     // 'from' address in the message.
 
                     // Persist the regID - no need to register again.
-                    storeRegistrationId(context, regid);
+                    storeRegistrationId(regid);
                 } catch (IOException ex) {
                     msg = getString(R.string.error) + " :" + ex.getMessage();
                     // If there is an error, don't just keep trying to register.
@@ -230,7 +235,8 @@ public class MainActivity extends Activity {
 
             @Override
             protected void onPostExecute(String msg) {
-                mDisplay.append(msg + "\n");
+                mDisplay.append(msg);
+                mRegid.setText(regid);
             }
         }.execute(null, null, null);
     }
@@ -238,7 +244,11 @@ public class MainActivity extends Activity {
     // Send an upstream message.
     public void onClick(final View view) {
 
-        if (view == findViewById(R.id.send)) {
+        if (view == findViewById(R.id.regist)) {
+            storeParameters();
+            registerInBackground();
+        } else if (view == findViewById(R.id.send)) {
+            storeParameters();
             new AsyncTask<Void, Void, String>() {
                 @Override
                 protected String doInBackground(Void... params) {
@@ -248,8 +258,8 @@ public class MainActivity extends Activity {
                         Bundle data = new Bundle();
                         data.putString("message", "Sent registration ID");
                         String id = Integer.toString(msgId.incrementAndGet());
-                        gcm.send(SENDER_ID + "@gcm.googleapis.com", id, data);
-                        msg = getString(R.string.sent) + "\nID=" + regid;
+                        gcm.send(senderid + "@gcm.googleapis.com", id, data);
+                        msg = getString(R.string.sent) + "\nID=";
                     } catch (IOException ex) {
                         msg = getString(R.string.error) + " :" + ex.getMessage();
                     }
@@ -258,11 +268,13 @@ public class MainActivity extends Activity {
 
                 @Override
                 protected void onPostExecute(String msg) {
-                    mDisplay.append(msg + "\n");
+                    mDisplay.setText(msg);
+                    mRegid.setText(regid);
                 }
             }.execute(null, null, null);
         } else if (view == findViewById(R.id.clear)) {
             mDisplay.setText("");
+            mRegid.setText("");
         }
     }
 
@@ -291,7 +303,7 @@ public class MainActivity extends Activity {
     private SharedPreferences getGcmPreferences(Context context) {
         // This sample app persists the registration ID in shared preferences, but
         // how you store the regID in your app is up to you.
-        return getSharedPreferences("registration", Context.MODE_PRIVATE);
+        return getSharedPreferences("gcmclient", Context.MODE_PRIVATE);
     }
     /**
      * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP or CCS to send
@@ -299,11 +311,11 @@ public class MainActivity extends Activity {
      * to a server that echoes back the message using the 'from' address in the message.
      */
     private void sendRegistrationIdToBackend() {
-        String serverUrl = SERVER_URL + "/register.php";
+        serverurl = "http://" + serverurl;
         Map<String, String> params = new HashMap<String, String>();
         params.put("regid", regid);
         try {
-            post(serverUrl, params);
+            post(serverurl, params);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -353,5 +365,31 @@ public class MainActivity extends Activity {
                 conn.disconnect();
             }
         }
+    }
+
+    private void setParameters() {
+        senderid  = prefs.getString(PROPERTY_SDR_ID, "");
+        serverurl = prefs.getString(PROPERTY_SRV_URL, "");
+        fullwake  = prefs.getBoolean(PROPERTY_FWL, false);
+
+        editText1 = (EditText) findViewById(R.id.senderid);
+        editText2 = (EditText) findViewById(R.id.serverurl);
+        checkBox  = (CheckBox) findViewById(R.id.fullwake);
+
+        editText1.setText(senderid);
+        editText2.setText(serverurl);
+        checkBox.setChecked(fullwake);
+    }
+
+    private void storeParameters() {
+        senderid  = editText1.getText().toString();
+        serverurl = editText2.getText().toString();
+        fullwake  = checkBox.isChecked();
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PROPERTY_SDR_ID, senderid);
+        editor.putString(PROPERTY_SRV_URL, serverurl);
+        editor.putBoolean(PROPERTY_FWL, fullwake);
+        editor.commit();
     }
 }
