@@ -51,11 +51,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MainActivity extends Activity {
 
-    public static final String PROPERTY_REG_ID = "registration_id";
-    private static final String PROPERTY_SDR_ID = "sender_id";
-    private static final String PROPERTY_SRV_URL = "server_url";
-    public static final String PROPERTY_FWL = "full_wake";
     private static final String PROPERTY_APP_VERSION = "appVersion";
+    private static final String PROPERTY_REG_ID = "registration_id";
+    private static final String PROPERTY_SEND_ID = "sender_id";
+    private static final String PROPERTY_SERV_URL = "server_url";
+    private static final String PROPERTY_PUSH_PAK = "push_pak";
+    private static final String PROPERTY_PUSH_ACT = "push_act";
+    private static final String PROPERTY_NOTI_ACT = "notification_act";
+    private static final String PROPERTY_MONI_PROC = "monitor_proc";
+    private static final String PROPERTY_FULL_WAKE = "full_wake";
+    private static final String PROTOCOL = "http";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final int RESULT_ENABLE = 1;
 
@@ -63,10 +68,14 @@ public class MainActivity extends Activity {
      * Substitute you own sender ID here. This is the project number you got
      * from the API Console, as described in "Getting Started."
      */
-    String regid;
-    String senderid;
-    String serverurl;
-    Boolean fullwake;
+    static String regid;
+    static String senderid;
+    static String serverurl;
+    static String pushpak;
+    static String pushact;
+    static String notifact;
+    static String moniproc;
+    static Boolean fullwake;
 
     /**
      * Tag used on log messages.
@@ -75,8 +84,7 @@ public class MainActivity extends Activity {
 
     TextView mDisplay;
     EditText mRegid;
-    EditText editText1;
-    EditText editText2;
+    EditText editText1, editText2, editText3, editText4, editText5, editText6;
     CheckBox checkBox;
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();
@@ -212,7 +220,7 @@ public class MainActivity extends Activity {
                         gcm = GoogleCloudMessaging.getInstance(context);
                     }
                     regid = gcm.register(senderid);
-                    msg = getString(R.string.registered) + "\nID=";
+                    msg = getString(R.string.registered);
 
                     // You should send the registration ID to your server over HTTP, so it
                     // can use GCM/HTTP or CCS to send messages to your app.
@@ -235,7 +243,7 @@ public class MainActivity extends Activity {
 
             @Override
             protected void onPostExecute(String msg) {
-                mDisplay.append(msg);
+                mDisplay.setText(msg);
                 mRegid.setText(regid);
             }
         }.execute(null, null, null);
@@ -244,7 +252,9 @@ public class MainActivity extends Activity {
     // Send an upstream message.
     public void onClick(final View view) {
 
-        if (view == findViewById(R.id.regist)) {
+        if (view == findViewById(R.id.set)) {
+            storeParameters();
+        } else if (view == findViewById(R.id.regist)) {
             storeParameters();
             registerInBackground();
         } else if (view == findViewById(R.id.send)) {
@@ -253,16 +263,16 @@ public class MainActivity extends Activity {
                 @Override
                 protected String doInBackground(Void... params) {
                     String msg = "";
-                    try {
+//                    try {
                         sendRegistrationIdToBackend();
-                        Bundle data = new Bundle();
-                        data.putString("message", "Sent registration ID");
-                        String id = Integer.toString(msgId.incrementAndGet());
-                        gcm.send(senderid + "@gcm.googleapis.com", id, data);
-                        msg = getString(R.string.sent) + "\nID=";
-                    } catch (IOException ex) {
-                        msg = getString(R.string.error) + " :" + ex.getMessage();
-                    }
+//                        Bundle data = new Bundle();
+//                        data.putString("message", "Sent registration ID");
+//                        String id = Integer.toString(msgId.incrementAndGet());
+//                       gcm.send(senderid + "@gcm.googleapis.com", id, data);
+                        msg = getString(R.string.sent);
+//                    } catch (IOException ex) {
+//                        msg = getString(R.string.error) + " :" + ex.getMessage();
+//                    }
                     return msg;
                 }
 
@@ -311,11 +321,16 @@ public class MainActivity extends Activity {
      * to a server that echoes back the message using the 'from' address in the message.
      */
     private void sendRegistrationIdToBackend() {
-        serverurl = "http://" + serverurl;
+        String fserverurl;
+        if (serverurl.startsWith(PROTOCOL)) {
+            fserverurl = serverurl;
+        } else {
+            fserverurl = PROTOCOL + "://" + serverurl;
+        }
         Map<String, String> params = new HashMap<String, String>();
         params.put("regid", regid);
         try {
-            post(serverurl, params);
+            post(fserverurl, params);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -368,28 +383,48 @@ public class MainActivity extends Activity {
     }
 
     private void setParameters() {
-        senderid  = prefs.getString(PROPERTY_SDR_ID, "");
-        serverurl = prefs.getString(PROPERTY_SRV_URL, "");
-        fullwake  = prefs.getBoolean(PROPERTY_FWL, false);
+        senderid  = prefs.getString(PROPERTY_SEND_ID, "");
+        serverurl = prefs.getString(PROPERTY_SERV_URL, "");
+        pushpak   = prefs.getString(PROPERTY_PUSH_PAK, "com.csipsimple");
+        pushact   = prefs.getString(PROPERTY_PUSH_ACT, ".ui.SipHome");
+        notifact  = prefs.getString(PROPERTY_NOTI_ACT, ".phone.action.CALLLOG");
+        moniproc  = prefs.getString(PROPERTY_MONI_PROC, ":sipStack");
+        fullwake  = prefs.getBoolean(PROPERTY_FULL_WAKE, false);
 
         editText1 = (EditText) findViewById(R.id.senderid);
         editText2 = (EditText) findViewById(R.id.serverurl);
+        editText3 = (EditText) findViewById(R.id.pushpak);
+        editText4 = (EditText) findViewById(R.id.pushact);
+        editText5 = (EditText) findViewById(R.id.notifact);
+        editText6 = (EditText) findViewById(R.id.moniproc);
         checkBox  = (CheckBox) findViewById(R.id.fullwake);
 
         editText1.setText(senderid);
         editText2.setText(serverurl);
+        editText3.setText(pushpak);
+        editText4.setText(pushact);
+        editText5.setText(notifact);
+        editText6.setText(moniproc);
         checkBox.setChecked(fullwake);
     }
 
     private void storeParameters() {
         senderid  = editText1.getText().toString();
         serverurl = editText2.getText().toString();
+        pushpak   = editText3.getText().toString();
+        pushact   = editText4.getText().toString();
+        notifact  = editText5.getText().toString();
+        moniproc  = editText6.getText().toString();
         fullwake  = checkBox.isChecked();
 
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(PROPERTY_SDR_ID, senderid);
-        editor.putString(PROPERTY_SRV_URL, serverurl);
-        editor.putBoolean(PROPERTY_FWL, fullwake);
+        editor.putString(PROPERTY_SEND_ID, senderid);
+        editor.putString(PROPERTY_SERV_URL, serverurl);
+        editor.putString(PROPERTY_PUSH_PAK, pushpak);
+        editor.putString(PROPERTY_PUSH_ACT, pushact);
+        editor.putString(PROPERTY_NOTI_ACT, notifact);
+        editor.putString(PROPERTY_MONI_PROC, moniproc);
+        editor.putBoolean(PROPERTY_FULL_WAKE, fullwake);
         editor.commit();
     }
 }

@@ -47,8 +47,10 @@ import java.util.List;
 public class GcmIntentService extends IntentService {
 	private static final int WAKE_TIME = 10000;
 	
-    private String SIP_PACKAGE  = "com.csipsimple";
-    private String SIP_ACTIVITY = "com.csipsimple.ui.SipHome";
+    private static String pushpak;
+    private static String pushact;
+    private static String notifact;
+    private static String moniproc;
 
     public GcmIntentService() {
         super("GcmIntentService");
@@ -59,6 +61,10 @@ public class GcmIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         final SharedPreferences prefs = getSharedPreferences("gcmclient", Context.MODE_PRIVATE);
+        pushpak = prefs.getString("push_pak", "");
+        pushact = prefs.getString("push_act", "");
+        notifact = prefs.getString("notification_act", "");
+        moniproc = prefs.getString("monitor_proc", "");
         final boolean fullwake = prefs.getBoolean("full_wake", false);
 
         Bundle extras = intent.getExtras();
@@ -93,14 +99,18 @@ public class GcmIntentService extends IntentService {
        		        | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
        		mWakeLock.acquire(WAKE_TIME);
        	}
-        startActivity(getSipIntent(Intent.FLAG_ACTIVITY_NO_USER_ACTION
-                | Intent.FLAG_ACTIVITY_NO_ANIMATION
-                | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
+        try {
+            startActivity(getPushactIntent(Intent.FLAG_ACTIVITY_NO_USER_ACTION
+                    | Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
+        } catch (Exception e) {
+            Log.i(TAG, "Activity not started");
+        }
         SystemClock.sleep(WAKE_TIME);
-        if (!misScreenOn) {
+        if (!misScreenOn && !moniproc.isEmpty()) {
             for (int count = 0; count < 5; count++) {
                 SystemClock.sleep(2000);
-                if (!checkRunningSipProcess()) {
+                if (!checkRunningProcess()) {
                     isAnswered = false;
                     SystemClock.sleep(1000);
                     break;
@@ -125,13 +135,20 @@ public class GcmIntentService extends IntentService {
     // This is just one simple example of what you might choose to do with
     // a GCM message.
     private void sendNotification(String msg) {
+        String fnotifact;
+        if (notifact.startsWith(pushpak)) {
+            fnotifact = notifact;
+        } else {
+            fnotifact = pushpak + notifact;
+        }
+
         NotificationManager mNotificationManager  = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         PendingIntent contentIntent = null;
-        Intent intent = getSipIntent(0);
+        Intent intent = getPushactIntent(0);
         if (intent != null) {
-            intent.setAction("com.csipsimple.phone.action.CALLLOG");
+            intent.setAction(fnotifact);
             contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         }
 
@@ -149,12 +166,18 @@ public class GcmIntentService extends IntentService {
         mNotificationManager.notify(1, mBuilder.build());
     }
 
-    private Intent getSipIntent(int flags) {
+    private Intent getPushactIntent(int flags) {
         Intent intent = new Intent();
         PackageManager mPackageManager = this.getPackageManager();
         try {
-            mPackageManager.getApplicationInfo(SIP_PACKAGE, PackageManager.GET_META_DATA);
-            intent.setClassName(SIP_PACKAGE, SIP_ACTIVITY);
+            String fpushact;
+            if (pushact.startsWith(pushpak)) {
+                fpushact = pushact;
+            } else {
+                fpushact = pushpak + pushact;
+            }
+            mPackageManager.getApplicationInfo(pushpak, PackageManager.GET_META_DATA);
+            intent.setClassName(pushpak, fpushact);
             intent.setFlags(flags
                     | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
                     | Intent.FLAG_ACTIVITY_NO_HISTORY
@@ -166,11 +189,17 @@ public class GcmIntentService extends IntentService {
         return intent;
     }
 
-    private boolean checkRunningSipProcess() {
+    private boolean checkRunningProcess() {
+        String fmoniproc;
+        if (moniproc.startsWith(pushpak)) {
+            fmoniproc = moniproc;
+        } else {
+            fmoniproc = pushpak + moniproc;
+        }
         ActivityManager mActivityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
         List<RunningAppProcessInfo> processInfoList = mActivityManager.getRunningAppProcesses();
         for (RunningAppProcessInfo info : processInfoList) {
-            if (info.processName.equals(SIP_PACKAGE + ":sipStack")) {
+            if (info.processName.equals(fmoniproc)) {
                 if (info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
                     Log.i(TAG, "App is running.");
                     return true;

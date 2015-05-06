@@ -31,15 +31,54 @@
                 <TextView android:text="@string/sender_id" />
                 <EditText
                     android:id="@+id/senderid"
-                    android:inputType="number"/>
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:inputType="number" />_
             </TableRow>
 
             <TableRow>
                 <TextView android:text="@string/server_url" />
                 <EditText
                     android:id="@+id/serverurl"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
                     android:inputType="textUri"
-                    android:hint="yourserver.com/register.php" />
+                    android:hint="yourserver.com/reg.php"
+                    android:layout_weight="1" />
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="@string/push_pak" />
+                <EditText
+                    android:id="@+id/pushpak"
+                    android:layout_weight="1" />
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="@string/push_act" />
+                <EditText
+                    android:id="@+id/pushact"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:layout_weight="1" />
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="@string/notification_act" />
+                <EditText
+                    android:id="@+id/notifact"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:layout_weight="1" />
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="@string/monitor_proc" />
+                <EditText
+                    android:id="@+id/moniproc"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:layout_weight="1" />
             </TableRow>
 
             <CheckBox android:id="@+id/fullwake"
@@ -51,6 +90,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/set"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"
+                android:text="@string/set" />
 
             <Button
                 android:id="@+id/regist"
