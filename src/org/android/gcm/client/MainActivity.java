@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
     private static final String PROPERTY_PUSH_ACT = "push_act";
     private static final String PROPERTY_NOTI_ACT = "notification_act";
     private static final String PROPERTY_MONI_PROC = "monitor_proc";
+    private static final String PROPERTY_CALL_NOTI = "call_notification";
     private static final String PROPERTY_FULL_WAKE = "full_wake";
     private static final String PROTOCOL = "http";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -75,6 +76,7 @@ public class MainActivity extends Activity {
     static String pushact;
     static String notifact;
     static String moniproc;
+    static Boolean callnotif;
     static Boolean fullwake;
 
     /**
@@ -85,7 +87,7 @@ public class MainActivity extends Activity {
     TextView mDisplay;
     EditText mRegid;
     EditText editText1, editText2, editText3, editText4, editText5, editText6;
-    CheckBox checkBox;
+    CheckBox checkBox1, checkBox2;
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();
     Context context;
@@ -386,9 +388,10 @@ public class MainActivity extends Activity {
         senderid  = prefs.getString(PROPERTY_SEND_ID, "");
         serverurl = prefs.getString(PROPERTY_SERV_URL, "");
         pushpak   = prefs.getString(PROPERTY_PUSH_PAK, "com.csipsimple");
-        pushact   = prefs.getString(PROPERTY_PUSH_ACT, ".ui.SipHome");
-        notifact  = prefs.getString(PROPERTY_NOTI_ACT, ".phone.action.CALLLOG");
-        moniproc  = prefs.getString(PROPERTY_MONI_PROC, ":sipStack");
+        pushact   = prefs.getString(PROPERTY_PUSH_ACT, "com.csipsimple.ui.SipHome");
+        notifact  = prefs.getString(PROPERTY_NOTI_ACT, "com.csipsimple.phone.action.CALLLOG");
+        moniproc  = prefs.getString(PROPERTY_MONI_PROC, "com.csipsimple:sipStack");
+        callnotif = prefs.getBoolean(PROPERTY_CALL_NOTI, true);
         fullwake  = prefs.getBoolean(PROPERTY_FULL_WAKE, false);
 
         editText1 = (EditText) findViewById(R.id.senderid);
@@ -397,7 +400,8 @@ public class MainActivity extends Activity {
         editText4 = (EditText) findViewById(R.id.pushact);
         editText5 = (EditText) findViewById(R.id.notifact);
         editText6 = (EditText) findViewById(R.id.moniproc);
-        checkBox  = (CheckBox) findViewById(R.id.fullwake);
+        checkBox1 = (CheckBox) findViewById(R.id.callnotif);
+        checkBox2 = (CheckBox) findViewById(R.id.fullwake);
 
         editText1.setText(senderid);
         editText2.setText(serverurl);
@@ -405,7 +409,8 @@ public class MainActivity extends Activity {
         editText4.setText(pushact);
         editText5.setText(notifact);
         editText6.setText(moniproc);
-        checkBox.setChecked(fullwake);
+        checkBox1.setChecked(callnotif);
+        checkBox2.setChecked(fullwake);
     }
 
     private void storeParameters() {
@@ -415,7 +420,8 @@ public class MainActivity extends Activity {
         pushact   = editText4.getText().toString();
         notifact  = editText5.getText().toString();
         moniproc  = editText6.getText().toString();
-        fullwake  = checkBox.isChecked();
+        callnotif = checkBox1.isChecked();
+        fullwake  = checkBox2.isChecked();
 
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_SEND_ID, senderid);
@@ -424,6 +430,7 @@ public class MainActivity extends Activity {
         editor.putString(PROPERTY_PUSH_ACT, pushact);
         editor.putString(PROPERTY_NOTI_ACT, notifact);
         editor.putString(PROPERTY_MONI_PROC, moniproc);
+        editor.putBoolean(PROPERTY_CALL_NOTI, callnotif);
         editor.putBoolean(PROPERTY_FULL_WAKE, fullwake);
         editor.commit();
     }

@@ -18,10 +18,11 @@
     <string name="app_name">GCM Client</string>
     <string name="sender_id">Project No</string>
     <string name="server_url">Server URL</string>
-    <string name="push_pak">Push package</string>
-    <string name="push_act">Push activity</string>
-    <string name="notification_act">Notification act.</string>
+    <string name="push_pak">Package</string>
+    <string name="push_act">Activity</string>
+    <string name="notification_act">Notification launch</string>
     <string name="monitor_proc">Monitor process</string>
+    <string name="call_notification">Notify when a call received</string>
     <string name="full_wake">Turn the screen on when a push received</string>
     <string name="set">Set</string>
     <string name="regist">Regist</string>

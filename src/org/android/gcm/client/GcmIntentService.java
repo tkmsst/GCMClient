@@ -65,6 +65,7 @@ public class GcmIntentService extends IntentService {
         pushact = prefs.getString("push_act", "");
         notifact = prefs.getString("notification_act", "");
         moniproc = prefs.getString("monitor_proc", "");
+        final boolean callnotif = prefs.getBoolean("call_notification", true);
         final boolean fullwake = prefs.getBoolean("full_wake", false);
 
         Bundle extras = intent.getExtras();
@@ -84,7 +85,7 @@ public class GcmIntentService extends IntentService {
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
                 sendNotification(getString(R.string.deleted) + ": " + extras.toString());
                 // If it's a regular GCM message, do some work.
-            } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+            } else if (callnotif && GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 // Post notification of received message.
                 sendNotification(getString(R.string.received, extras.getString("name")));
                 Log.i(TAG, "Received: " + extras.toString());
@@ -112,7 +113,7 @@ public class GcmIntentService extends IntentService {
                 SystemClock.sleep(2000);
                 if (!checkRunningProcess()) {
                     isAnswered = false;
-                    SystemClock.sleep(1000);
+                    SystemClock.sleep(3000);
                     break;
                 }
             }
@@ -135,20 +136,13 @@ public class GcmIntentService extends IntentService {
     // This is just one simple example of what you might choose to do with
     // a GCM message.
     private void sendNotification(String msg) {
-        String fnotifact;
-        if (notifact.startsWith(pushpak)) {
-            fnotifact = notifact;
-        } else {
-            fnotifact = pushpak + notifact;
-        }
-
         NotificationManager mNotificationManager  = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         PendingIntent contentIntent = null;
         Intent intent = getPushactIntent(0);
         if (intent != null) {
-            intent.setAction(fnotifact);
+            intent.setAction(notifact);
             contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         }
 
@@ -170,14 +164,8 @@ public class GcmIntentService extends IntentService {
         Intent intent = new Intent();
         PackageManager mPackageManager = this.getPackageManager();
         try {
-            String fpushact;
-            if (pushact.startsWith(pushpak)) {
-                fpushact = pushact;
-            } else {
-                fpushact = pushpak + pushact;
-            }
             mPackageManager.getApplicationInfo(pushpak, PackageManager.GET_META_DATA);
-            intent.setClassName(pushpak, fpushact);
+            intent.setClassName(pushpak, pushact);
             intent.setFlags(flags
                     | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
                     | Intent.FLAG_ACTIVITY_NO_HISTORY

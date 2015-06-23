@@ -1,0 +1,7 @@
+[Setting examples]
+
+<CSipSiple>
+Package :	com.csipsimple
+Activity :	com.csipsimple.ui.SipHome
+Notification :	com.csipsimple.phone.action:CALLLOG
+Process :	com.csipsimple.ui.incall.InCallActivity

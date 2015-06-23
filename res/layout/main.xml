@@ -81,6 +81,9 @@
                     android:layout_weight="1" />
             </TableRow>
 
+            <CheckBox android:id="@+id/callnotif"
+                android:text="@string/call_notification" />
+
             <CheckBox android:id="@+id/fullwake"
                 android:text="@string/full_wake" />
 
