@@ -66,22 +66,22 @@
             <TableRow>
                 <TextView android:text="@string/notification_act" />
                 <EditText
-                    android:id="@+id/notifact"
+                    android:id="@+id/notiact"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
                     android:layout_weight="1" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="@string/monitor_proc" />
+                <TextView android:text="@string/monitor_act" />
                 <EditText
-                    android:id="@+id/moniproc"
+                    android:id="@+id/moniact"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
                     android:layout_weight="1" />
             </TableRow>
 
-            <CheckBox android:id="@+id/callnotif"
+            <CheckBox android:id="@+id/callnoti"
                 android:text="@string/call_notification" />
 
             <CheckBox android:id="@+id/fullwake"

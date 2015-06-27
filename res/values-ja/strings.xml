@@ -20,21 +20,23 @@
     <string name="server_url">サーバーURL</string>
     <string name="push_pak">パッケージ</string>
     <string name="push_act">アクティビティ</string>
-    <string name="notification_act">通知領域起動</string>
-    <string name="monitor_proc">監視プロセス</string>
-    <string name="call_notification">着信時に通知する</string>
+    <string name="notification_act">通知</string>
+    <string name="monitor_act">監視</string>
+    <string name="call_notification">プッシュ受信時に通知する</string>
     <string name="full_wake">プッシュ受信時に画面を点灯する</string>
     <string name="set">設定</string>
     <string name="regist">登録</string>
     <string name="send">送信</string>
     <string name="clear">クリア</string>
     <string name="device_admin_description">画面のロックをGCM Clientに許可します</string>
+    <string name="stored">パラメータを設定しました</string>
     <string name="registered">デバイスを登録しました</string>
     <string name="sent">Registration IDを送信しました</string>
+    <string name="no_sender_id">プロジェクト番号が空です</string>
     <string name="error">エラー</string>
     <string name="send_error">送信エラー</string>
     <string name="deleted">サーバーのメッセージを削除しました</string>
-    <string name="received">%sから着信がありました</string>
+    <string name="received">プッシュを受信しました: %s</string>
     <string name="notification">GCM Notification</string>
 
 </resources>

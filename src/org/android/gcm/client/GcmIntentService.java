@@ -17,7 +17,6 @@
 package org.android.gcm.client;
 
 import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -35,8 +34,6 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-import java.util.List;
-
 /**
  * This {@code IntentService} does the actual handling of the GCM message.
  * {@code GcmBroadcastReceiver} (a {@code WakefulBroadcastReceiver}) holds a
@@ -49,8 +46,8 @@ public class GcmIntentService extends IntentService {
 	
     private static String pushpak;
     private static String pushact;
-    private static String notifact;
-    private static String moniproc;
+    private static String notiact;
+    private static String moniact;
 
     public GcmIntentService() {
         super("GcmIntentService");
@@ -63,9 +60,9 @@ public class GcmIntentService extends IntentService {
         final SharedPreferences prefs = getSharedPreferences("gcmclient", Context.MODE_PRIVATE);
         pushpak = prefs.getString("push_pak", "");
         pushact = prefs.getString("push_act", "");
-        notifact = prefs.getString("notification_act", "");
-        moniproc = prefs.getString("monitor_proc", "");
-        final boolean callnotif = prefs.getBoolean("call_notification", true);
+        notiact = prefs.getString("notification_act", "");
+        moniact = prefs.getString("monitor_act", "");
+        final boolean callnoti = prefs.getBoolean("call_notification", true);
         final boolean fullwake = prefs.getBoolean("full_wake", false);
 
         Bundle extras = intent.getExtras();
@@ -85,7 +82,7 @@ public class GcmIntentService extends IntentService {
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
                 sendNotification(getString(R.string.deleted) + ": " + extras.toString());
                 // If it's a regular GCM message, do some work.
-            } else if (callnotif && GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+            } else if (callnoti && GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 // Post notification of received message.
                 sendNotification(getString(R.string.received, extras.getString("name")));
                 Log.i(TAG, "Received: " + extras.toString());
@@ -108,7 +105,7 @@ public class GcmIntentService extends IntentService {
             Log.i(TAG, "Activity not started");
         }
         SystemClock.sleep(WAKE_TIME);
-        if (!misScreenOn && !moniproc.isEmpty()) {
+        if (!misScreenOn && !moniact.isEmpty()) {
             for (int count = 0; count < 5; count++) {
                 SystemClock.sleep(2000);
                 if (!checkRunningProcess()) {
@@ -142,7 +139,7 @@ public class GcmIntentService extends IntentService {
         PendingIntent contentIntent = null;
         Intent intent = getPushactIntent(0);
         if (intent != null) {
-            intent.setAction(notifact);
+            intent.setAction(notiact);
             contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         }
 
@@ -178,21 +175,11 @@ public class GcmIntentService extends IntentService {
     }
 
     private boolean checkRunningProcess() {
-        String fmoniproc;
-        if (moniproc.startsWith(pushpak)) {
-            fmoniproc = moniproc;
-        } else {
-            fmoniproc = pushpak + moniproc;
-        }
         ActivityManager mActivityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
-        List<RunningAppProcessInfo> processInfoList = mActivityManager.getRunningAppProcesses();
-        for (RunningAppProcessInfo info : processInfoList) {
-            if (info.processName.equals(fmoniproc)) {
-                if (info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                    Log.i(TAG, "App is running.");
-                    return true;
-                }
-            }
+        String className = mActivityManager.getRunningTasks(1).get(0).topActivity.getClassName();
+        if (className.equals(moniact)) {
+            Log.i(TAG, "App is running.");
+            return true;
         }
         return false;
     }

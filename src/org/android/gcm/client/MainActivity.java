@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
     private static final String PROPERTY_PUSH_PAK = "push_pak";
     private static final String PROPERTY_PUSH_ACT = "push_act";
     private static final String PROPERTY_NOTI_ACT = "notification_act";
-    private static final String PROPERTY_MONI_PROC = "monitor_proc";
+    private static final String PROPERTY_MONI_ACT = "monitor_act";
     private static final String PROPERTY_CALL_NOTI = "call_notification";
     private static final String PROPERTY_FULL_WAKE = "full_wake";
     private static final String PROTOCOL = "http";
@@ -74,9 +74,9 @@ public class MainActivity extends Activity {
     static String serverurl;
     static String pushpak;
     static String pushact;
-    static String notifact;
-    static String moniproc;
-    static Boolean callnotif;
+    static String notiact;
+    static String moniact;
+    static Boolean callnoti;
     static Boolean fullwake;
 
     /**
@@ -255,12 +255,18 @@ public class MainActivity extends Activity {
     public void onClick(final View view) {
 
         if (view == findViewById(R.id.set)) {
-            storeParameters();
+            if (storeParameters()) {
+                mDisplay.setText(getString(R.string.stored));
+            }
         } else if (view == findViewById(R.id.regist)) {
-            storeParameters();
+            if (!storeParameters()) {
+                return;
+            }
             registerInBackground();
         } else if (view == findViewById(R.id.send)) {
-            storeParameters();
+            if (!storeParameters()) {
+                return;
+            }
             new AsyncTask<Void, Void, String>() {
                 @Override
                 protected String doInBackground(Void... params) {
@@ -389,38 +395,42 @@ public class MainActivity extends Activity {
         serverurl = prefs.getString(PROPERTY_SERV_URL, "");
         pushpak   = prefs.getString(PROPERTY_PUSH_PAK, "com.csipsimple");
         pushact   = prefs.getString(PROPERTY_PUSH_ACT, "com.csipsimple.ui.SipHome");
-        notifact  = prefs.getString(PROPERTY_NOTI_ACT, "com.csipsimple.phone.action.CALLLOG");
-        moniproc  = prefs.getString(PROPERTY_MONI_PROC, "com.csipsimple:sipStack");
-        callnotif = prefs.getBoolean(PROPERTY_CALL_NOTI, true);
+        notiact  = prefs.getString(PROPERTY_NOTI_ACT, "com.csipsimple.phone.action.CALLLOG");
+        moniact  = prefs.getString(PROPERTY_MONI_ACT, "com.csipsimple.ui.incall.InCallActivity");
+        callnoti = prefs.getBoolean(PROPERTY_CALL_NOTI, true);
         fullwake  = prefs.getBoolean(PROPERTY_FULL_WAKE, false);
 
         editText1 = (EditText) findViewById(R.id.senderid);
         editText2 = (EditText) findViewById(R.id.serverurl);
         editText3 = (EditText) findViewById(R.id.pushpak);
         editText4 = (EditText) findViewById(R.id.pushact);
-        editText5 = (EditText) findViewById(R.id.notifact);
-        editText6 = (EditText) findViewById(R.id.moniproc);
-        checkBox1 = (CheckBox) findViewById(R.id.callnotif);
+        editText5 = (EditText) findViewById(R.id.notiact);
+        editText6 = (EditText) findViewById(R.id.moniact);
+        checkBox1 = (CheckBox) findViewById(R.id.callnoti);
         checkBox2 = (CheckBox) findViewById(R.id.fullwake);
 
         editText1.setText(senderid);
         editText2.setText(serverurl);
         editText3.setText(pushpak);
         editText4.setText(pushact);
-        editText5.setText(notifact);
-        editText6.setText(moniproc);
-        checkBox1.setChecked(callnotif);
+        editText5.setText(notiact);
+        editText6.setText(moniact);
+        checkBox1.setChecked(callnoti);
         checkBox2.setChecked(fullwake);
     }
 
-    private void storeParameters() {
+    private boolean storeParameters() {
         senderid  = editText1.getText().toString();
+        if (senderid.isEmpty()) {
+            mDisplay.setText(getString(R.string.no_sender_id));
+            return false;
+        }
         serverurl = editText2.getText().toString();
         pushpak   = editText3.getText().toString();
         pushact   = editText4.getText().toString();
-        notifact  = editText5.getText().toString();
-        moniproc  = editText6.getText().toString();
-        callnotif = checkBox1.isChecked();
+        notiact   = editText5.getText().toString();
+        moniact   = editText6.getText().toString();
+        callnoti  = checkBox1.isChecked();
         fullwake  = checkBox2.isChecked();
 
         SharedPreferences.Editor editor = prefs.edit();
@@ -428,10 +438,12 @@ public class MainActivity extends Activity {
         editor.putString(PROPERTY_SERV_URL, serverurl);
         editor.putString(PROPERTY_PUSH_PAK, pushpak);
         editor.putString(PROPERTY_PUSH_ACT, pushact);
-        editor.putString(PROPERTY_NOTI_ACT, notifact);
-        editor.putString(PROPERTY_MONI_PROC, moniproc);
-        editor.putBoolean(PROPERTY_CALL_NOTI, callnotif);
+        editor.putString(PROPERTY_NOTI_ACT, notiact);
+        editor.putString(PROPERTY_MONI_ACT, moniact);
+        editor.putBoolean(PROPERTY_CALL_NOTI, callnoti);
         editor.putBoolean(PROPERTY_FULL_WAKE, fullwake);
         editor.commit();
+
+        return true;
     }
 }

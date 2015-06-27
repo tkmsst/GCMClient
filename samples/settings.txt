@@ -1,7 +1,29 @@
 [Setting examples]
 
-<CSipSiple>
+<Lollipop>
+
+-CSipSiple-
 Package :	com.csipsimple
 Activity :	com.csipsimple.ui.SipHome
 Notification :	com.csipsimple.phone.action:CALLLOG
-Process :	com.csipsimple.ui.incall.InCallActivity
+Monitor :	(blank)
+
+-Zoiper-
+Package :	com.zoiper.android.app
+Activity :	com.zoiper.android.ui.SplashScreen
+Notification :	com.zoiper.android.ui.SplashScreen
+Monitor :	(blank)
+
+<Other than Lollipop>
+
+-CSipSiple-
+Package :	com.csipsimple
+Activity :	com.csipsimple.ui.SipHome
+Notification :	com.csipsimple.phone.action:CALLLOG
+Monitor :	com.csipsimple.ui.incall.InCallActivity
+
+-Zoiper-
+Package :	com.zoiper.android.app
+Activity :	com.zoiper.android.ui.SplashScreen
+Notification :	com.zoiper.android.ui.SplashScreen
+Monitor :	com.zoiper.android.ui.InCallScreen
