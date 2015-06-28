@@ -84,7 +84,8 @@ public class GcmIntentService extends IntentService {
                 // If it's a regular GCM message, do some work.
             } else if (callnoti && GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 // Post notification of received message.
-                sendNotification(getString(R.string.received, extras.getString("name")));
+                sendNotification(getString(R.string.received,
+                        extras.getString("name"), extras.getString("num")));
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
@@ -93,14 +94,16 @@ public class GcmIntentService extends IntentService {
         PowerManager mPowerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
         boolean misScreenOn = mPowerManager.isScreenOn();
       	if (fullwake && !misScreenOn) {
-       		PowerManager.WakeLock mWakeLock = mPowerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK
-       		        | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
+       		PowerManager.WakeLock mWakeLock = mPowerManager.newWakeLock(
+                    PowerManager.FULL_WAKE_LOCK |
+       		        PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
        		mWakeLock.acquire(WAKE_TIME);
        	}
         try {
-            startActivity(getPushactIntent(Intent.FLAG_ACTIVITY_NO_USER_ACTION
-                    | Intent.FLAG_ACTIVITY_NO_ANIMATION
-                    | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
+            startActivity(getPushactIntent(
+                    Intent.FLAG_ACTIVITY_NO_USER_ACTION |
+                    Intent.FLAG_ACTIVITY_NO_ANIMATION |
+                    Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
         } catch (Exception e) {
             Log.i(TAG, "Activity not started");
         }
@@ -121,10 +124,11 @@ public class GcmIntentService extends IntentService {
         if (!isAnswered) {
             Intent lockIntent = new Intent(this, LockActivity.class);
             lockIntent.setClass(getApplicationContext(), LockActivity.class);
-            lockIntent.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION
-                    | Intent.FLAG_ACTIVITY_NO_HISTORY
-                    | Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            lockIntent.setFlags(
+                    Intent.FLAG_ACTIVITY_NO_USER_ACTION |
+                    Intent.FLAG_ACTIVITY_NO_HISTORY |
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                    Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             startActivity(lockIntent);
         }
     }
@@ -144,14 +148,13 @@ public class GcmIntentService extends IntentService {
         }
 
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_stat_gcm)
-                        .setContentTitle(getString(R.string.notification))
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(msg))
-                        .setContentText(msg)
-                        .setAutoCancel(true)
-                        .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS);
+                new NotificationCompat.Builder(this).
+                        setSmallIcon(R.drawable.ic_stat_gcm).
+                        setContentTitle(getString(R.string.notification)).
+                        setStyle(new NotificationCompat.BigTextStyle().bigText(msg)).
+                        setContentText(msg).
+                        setAutoCancel(true).
+                        setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(1, mBuilder.build());
@@ -163,10 +166,10 @@ public class GcmIntentService extends IntentService {
         try {
             mPackageManager.getApplicationInfo(pushpak, PackageManager.GET_META_DATA);
             intent.setClassName(pushpak, pushact);
-            intent.setFlags(flags
-                    | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-                    | Intent.FLAG_ACTIVITY_NO_HISTORY
-                    | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setFlags(flags |
+                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED |
+                    Intent.FLAG_ACTIVITY_NO_HISTORY |
+                    Intent.FLAG_ACTIVITY_NEW_TASK);
         } catch(NameNotFoundException e) {
             intent = null;
             Log.i(TAG, "App not found");

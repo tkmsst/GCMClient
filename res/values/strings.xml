@@ -36,7 +36,7 @@
     <string name="error">Error</string>
     <string name="send_error">Send error</string>
     <string name="deleted">Deleted messages on server</string>
-    <string name="received">A push received: %s</string>
+    <string name="received">Push received: %1$s &lt;%2$s&gt;</string>
     <string name="notification">GCM Notification</string>
 
 </resources>
