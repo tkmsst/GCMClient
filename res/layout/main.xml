@@ -81,6 +81,9 @@
                     android:layout_weight="1" />
             </TableRow>
 
+            <CheckBox android:id="@+id/pushon"
+                android:text="@string/push_on" />
+
             <CheckBox android:id="@+id/callnoti"
                 android:text="@string/call_notification" />
 

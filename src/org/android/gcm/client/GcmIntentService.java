@@ -62,6 +62,7 @@ public class GcmIntentService extends IntentService {
         pushact = prefs.getString("push_act", "");
         notiact = prefs.getString("notification_act", "");
         moniact = prefs.getString("monitor_act", "");
+        final boolean pushon   = prefs.getBoolean("push_on", true);
         final boolean callnoti = prefs.getBoolean("call_notification", true);
         final boolean fullwake = prefs.getBoolean("full_wake", false);
 
@@ -71,6 +72,7 @@ public class GcmIntentService extends IntentService {
         // in your BroadcastReceiver.
         String messageType = gcm.getMessageType(intent);
 
+        // Send a notification.
         if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
             /*
              * Filter messages based on message type. Since it is likely that GCM will be
@@ -89,7 +91,13 @@ public class GcmIntentService extends IntentService {
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
-        // Launch the SIP application.
+
+        // Finish if push is not enabled.
+        if (!pushon) {
+            return;
+        }
+
+        // Control the screen.
         boolean isAnswered = true;
         PowerManager mPowerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
         boolean misScreenOn = mPowerManager.isScreenOn();
@@ -99,6 +107,7 @@ public class GcmIntentService extends IntentService {
        		        PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
        		mWakeLock.acquire(WAKE_TIME);
        	}
+        // Launch the SIP application.
         try {
             startActivity(getPushactIntent(
                     Intent.FLAG_ACTIVITY_NO_USER_ACTION |
@@ -108,6 +117,7 @@ public class GcmIntentService extends IntentService {
             Log.i(TAG, "Activity not started");
         }
         SystemClock.sleep(WAKE_TIME);
+        // Check if the call is answered.
         if (!misScreenOn && !moniact.isEmpty()) {
             for (int count = 0; count < 5; count++) {
                 SystemClock.sleep(2000);

@@ -22,6 +22,7 @@
     <string name="push_act">アクティビティ</string>
     <string name="notification_act">通知</string>
     <string name="monitor_act">監視</string>
+    <string name="push_on">プッシュ起動を有効にする</string>
     <string name="call_notification">プッシュ受信時に通知する</string>
     <string name="full_wake">プッシュ受信時に画面を点灯する</string>
     <string name="set">設定</string>

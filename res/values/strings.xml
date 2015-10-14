@@ -22,6 +22,7 @@
     <string name="push_act">Activity</string>
     <string name="notification_act">Notification</string>
     <string name="monitor_act">Monitor</string>
+    <string name="push_on">Enable push launch</string>
     <string name="call_notification">Notify when a push received</string>
     <string name="full_wake">Turn the screen on when a push received</string>
     <string name="set">Set</string>

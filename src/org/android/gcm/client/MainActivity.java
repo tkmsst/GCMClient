@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
     private static final String PROPERTY_PUSH_ACT = "push_act";
     private static final String PROPERTY_NOTI_ACT = "notification_act";
     private static final String PROPERTY_MONI_ACT = "monitor_act";
+    private static final String PROPERTY_PUSH_ON = "push_on";
     private static final String PROPERTY_CALL_NOTI = "call_notification";
     private static final String PROPERTY_FULL_WAKE = "full_wake";
     private static final String PROTOCOL = "http";
@@ -76,6 +77,7 @@ public class MainActivity extends Activity {
     static String pushact;
     static String notiact;
     static String moniact;
+    static Boolean pushon;
     static Boolean callnoti;
     static Boolean fullwake;
 
@@ -87,7 +89,7 @@ public class MainActivity extends Activity {
     TextView mDisplay;
     EditText mRegid;
     EditText editText1, editText2, editText3, editText4, editText5, editText6;
-    CheckBox checkBox1, checkBox2;
+    CheckBox checkBox1, checkBox2, checkBox3;
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();
     Context context;
@@ -395,9 +397,10 @@ public class MainActivity extends Activity {
         serverurl = prefs.getString(PROPERTY_SERV_URL, "");
         pushpak   = prefs.getString(PROPERTY_PUSH_PAK, "com.csipsimple");
         pushact   = prefs.getString(PROPERTY_PUSH_ACT, "com.csipsimple.ui.SipHome");
-        notiact  = prefs.getString(PROPERTY_NOTI_ACT, "com.csipsimple.phone.action.CALLLOG");
-        moniact  = prefs.getString(PROPERTY_MONI_ACT, "com.csipsimple.ui.incall.InCallActivity");
-        callnoti = prefs.getBoolean(PROPERTY_CALL_NOTI, true);
+        notiact   = prefs.getString(PROPERTY_NOTI_ACT, "com.csipsimple.phone.action.CALLLOG");
+        moniact   = prefs.getString(PROPERTY_MONI_ACT, "com.csipsimple.ui.incall.InCallActivity");
+        pushon    = prefs.getBoolean(PROPERTY_PUSH_ON, true);
+        callnoti  = prefs.getBoolean(PROPERTY_CALL_NOTI, true);
         fullwake  = prefs.getBoolean(PROPERTY_FULL_WAKE, false);
 
         editText1 = (EditText) findViewById(R.id.senderid);
@@ -406,8 +409,9 @@ public class MainActivity extends Activity {
         editText4 = (EditText) findViewById(R.id.pushact);
         editText5 = (EditText) findViewById(R.id.notiact);
         editText6 = (EditText) findViewById(R.id.moniact);
-        checkBox1 = (CheckBox) findViewById(R.id.callnoti);
-        checkBox2 = (CheckBox) findViewById(R.id.fullwake);
+        checkBox1 = (CheckBox) findViewById(R.id.pushon);
+        checkBox2 = (CheckBox) findViewById(R.id.callnoti);
+        checkBox3 = (CheckBox) findViewById(R.id.fullwake);
 
         editText1.setText(senderid);
         editText2.setText(serverurl);
@@ -415,8 +419,9 @@ public class MainActivity extends Activity {
         editText4.setText(pushact);
         editText5.setText(notiact);
         editText6.setText(moniact);
-        checkBox1.setChecked(callnoti);
-        checkBox2.setChecked(fullwake);
+        checkBox1.setChecked(pushon);
+        checkBox2.setChecked(callnoti);
+        checkBox3.setChecked(fullwake);
     }
 
     private boolean storeParameters() {
@@ -430,8 +435,9 @@ public class MainActivity extends Activity {
         pushact   = editText4.getText().toString();
         notiact   = editText5.getText().toString();
         moniact   = editText6.getText().toString();
-        callnoti  = checkBox1.isChecked();
-        fullwake  = checkBox2.isChecked();
+        pushon    = checkBox1.isChecked();
+        callnoti  = checkBox2.isChecked();
+        fullwake  = checkBox3.isChecked();
 
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_SEND_ID, senderid);
@@ -440,6 +446,7 @@ public class MainActivity extends Activity {
         editor.putString(PROPERTY_PUSH_ACT, pushact);
         editor.putString(PROPERTY_NOTI_ACT, notiact);
         editor.putString(PROPERTY_MONI_ACT, moniact);
+        editor.putBoolean(PROPERTY_PUSH_ON, pushon);
         editor.putBoolean(PROPERTY_CALL_NOTI, callnoti);
         editor.putBoolean(PROPERTY_FULL_WAKE, fullwake);
         editor.commit();
