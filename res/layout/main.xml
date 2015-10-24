@@ -48,13 +48,6 @@
             </TableRow>
 
             <TableRow>
-                <TextView android:text="@string/push_pak" />
-                <EditText
-                    android:id="@+id/pushpak"
-                    android:layout_weight="1" />
-            </TableRow>
-
-            <TableRow>
                 <TextView android:text="@string/push_act" />
                 <EditText
                     android:id="@+id/pushact"
@@ -66,16 +59,7 @@
             <TableRow>
                 <TextView android:text="@string/notification_act" />
                 <EditText
-                    android:id="@+id/notiact"
-                    android:scrollHorizontally="true"
-                    android:singleLine="true"
-                    android:layout_weight="1" />
-            </TableRow>
-
-            <TableRow>
-                <TextView android:text="@string/monitor_act" />
-                <EditText
-                    android:id="@+id/moniact"
+                    android:id="@+id/notifact"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
                     android:layout_weight="1" />
@@ -84,11 +68,14 @@
             <CheckBox android:id="@+id/pushon"
                 android:text="@string/push_on" />
 
-            <CheckBox android:id="@+id/callnoti"
+            <CheckBox android:id="@+id/callnotif"
                 android:text="@string/call_notification" />
 
             <CheckBox android:id="@+id/fullwake"
                 android:text="@string/full_wake" />
+
+            <CheckBox android:id="@+id/endoff"
+                android:text="@string/end_off" />
 
         </TableLayout>
 
@@ -105,11 +92,11 @@
                 android:text="@string/set" />
 
             <Button
-                android:id="@+id/regist"
+                android:id="@+id/register"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
-                android:text="@string/regist" />
+                android:text="@string/register" />
 
             <Button
                 android:id="@+id/send"

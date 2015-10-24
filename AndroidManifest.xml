@@ -22,8 +22,8 @@
     <!-- The targetSdkVersion is optional, but it's always a good practice
          to target higher versions. -->
     <uses-sdk
-        android:minSdkVersion="13"
-        android:targetSdkVersion="17" />
+        android:minSdkVersion="14"
+        android:targetSdkVersion="21" />
 
     <!-- GCM connects to Google Services. -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -48,8 +48,8 @@
     <!-- This app has permission to register and receive data message. -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
-    <!-- Required for topActivity, but deprecated in API level 21. -->
-    <uses-permission android:name="android.permission.GET_TASKS" />
+    <!-- Required for Settings.System. -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <!-- Main activity. -->
     <application
@@ -71,11 +71,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Lock activity. -->
-        <activity android:name=".LockActivity"
-            android:label="@string/app_name">
-        </activity>
-
         <!--
           WakefulBroadcastReceiver that will receive intents from GCM
           services and hand them to the custom IntentService.
@@ -92,18 +87,6 @@
                 <category android:name="org.android.gcm.client" />
             </intent-filter>
         </receiver>
-
-        <!-- Lock receiver. -->
-        <receiver android:name=".LockReceiver"
-            android:description="@string/device_admin_description"
-            android:permission="android.permission.BIND_DEVICE_ADMIN">
-            <meta-data android:name="android.app.device_admin"
-                android:resource="@xml/device_admin" />
-            <intent-filter>
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-            </intent-filter>
-        </receiver>
-
         <service android:name=".GcmIntentService" />
     </application>
 

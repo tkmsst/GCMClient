@@ -16,13 +16,13 @@
 package org.android.gcm.client;
 
 import android.app.Activity;
-import android.app.admin.DevicePolicyManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -42,9 +42,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Main UI for the demo app.
@@ -57,43 +57,37 @@ public class MainActivity extends Activity {
     private static final String PROPERTY_SERV_URL = "server_url";
     private static final String PROPERTY_PUSH_PAK = "push_pak";
     private static final String PROPERTY_PUSH_ACT = "push_act";
-    private static final String PROPERTY_NOTI_ACT = "notification_act";
-    private static final String PROPERTY_MONI_ACT = "monitor_act";
+    private static final String PROPERTY_NOTIF_ACT = "notification_act";
     private static final String PROPERTY_PUSH_ON = "push_on";
-    private static final String PROPERTY_CALL_NOTI = "call_notification";
+    private static final String PROPERTY_CALL_NOTIF = "call_notification";
     private static final String PROPERTY_FULL_WAKE = "full_wake";
+    private static final String PROPERTY_END_OFF = "end_off";
     private static final String PROTOCOL = "http";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    private static final int RESULT_ENABLE = 1;
-
-    /**
-     * Substitute you own sender ID here. This is the project number you got
-     * from the API Console, as described in "Getting Started."
-     */
-    static String regid;
-    static String senderid;
-    static String serverurl;
-    static String pushpak;
-    static String pushact;
-    static String notiact;
-    static String moniact;
-    static Boolean pushon;
-    static Boolean callnoti;
-    static Boolean fullwake;
 
     /**
      * Tag used on log messages.
      */
     static final String TAG = "GCM Client";
 
-    TextView mDisplay;
-    EditText mRegid;
-    EditText editText1, editText2, editText3, editText4, editText5, editText6;
-    CheckBox checkBox1, checkBox2, checkBox3;
-    GoogleCloudMessaging gcm;
-    AtomicInteger msgId = new AtomicInteger();
-    Context context;
-    SharedPreferences prefs;
+    private TextView mDisplay;
+    private EditText mRegid;
+    private EditText editText1, editText2, editText3, editText4;
+    private CheckBox checkBox1, checkBox2, checkBox3, checkBox4;
+    private GoogleCloudMessaging gcm;
+    private Context context;
+    private SharedPreferences prefs;
+
+    String regid;
+    String senderid;
+    String serverurl;
+    String pushpak;
+    String pushact;
+    String notifact;
+    boolean pushon;
+    boolean callnotif;
+    boolean fullwake;
+    boolean endoff;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -111,33 +105,9 @@ public class MainActivity extends Activity {
             gcm = GoogleCloudMessaging.getInstance(this);
             regid = getRegistrationId(context);
             setParameters();
-
-            DevicePolicyManager mDevicePolicyManager =
-                    (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
-            ComponentName mComponentName = new ComponentName(this, LockReceiver.class);
-            if (!mDevicePolicyManager.isAdminActive(mComponentName)) {
-                // Enable device management.
-                Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mComponentName);
-                startActivityForResult(intent, RESULT_ENABLE);
-            }
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case RESULT_ENABLE:
-                if (resultCode == Activity.RESULT_OK) {
-                    Log.i(TAG, "Administration enabled.");
-                } else {
-                    Log.i(TAG, "Administration enable FAILED.");
-                }
-                return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -260,7 +230,7 @@ public class MainActivity extends Activity {
             if (storeParameters()) {
                 mDisplay.setText(getString(R.string.stored));
             }
-        } else if (view == findViewById(R.id.regist)) {
+        } else if (view == findViewById(R.id.register)) {
             if (!storeParameters()) {
                 return;
             }
@@ -273,16 +243,8 @@ public class MainActivity extends Activity {
                 @Override
                 protected String doInBackground(Void... params) {
                     String msg = "";
-//                    try {
-                        sendRegistrationIdToBackend();
-//                        Bundle data = new Bundle();
-//                        data.putString("message", "Sent registration ID");
-//                        String id = Integer.toString(msgId.incrementAndGet());
-//                       gcm.send(senderid + "@gcm.googleapis.com", id, data);
-                        msg = getString(R.string.sent);
-//                    } catch (IOException ex) {
-//                        msg = getString(R.string.error) + " :" + ex.getMessage();
-//                    }
+                    sendRegistrationIdToBackend();
+                    msg = getString(R.string.sent);
                     return msg;
                 }
 
@@ -395,60 +357,76 @@ public class MainActivity extends Activity {
     private void setParameters() {
         senderid  = prefs.getString(PROPERTY_SEND_ID, "");
         serverurl = prefs.getString(PROPERTY_SERV_URL, "");
-        pushpak   = prefs.getString(PROPERTY_PUSH_PAK, "com.csipsimple");
-        pushact   = prefs.getString(PROPERTY_PUSH_ACT, "com.csipsimple.ui.SipHome");
-        notiact   = prefs.getString(PROPERTY_NOTI_ACT, "com.csipsimple.phone.action.CALLLOG");
-        moniact   = prefs.getString(PROPERTY_MONI_ACT, "com.csipsimple.ui.incall.InCallActivity");
+        pushact   = prefs.getString(PROPERTY_PUSH_ACT, "");
+        notifact  = prefs.getString(PROPERTY_NOTIF_ACT, "");
         pushon    = prefs.getBoolean(PROPERTY_PUSH_ON, true);
-        callnoti  = prefs.getBoolean(PROPERTY_CALL_NOTI, true);
+        callnotif = prefs.getBoolean(PROPERTY_CALL_NOTIF, true);
         fullwake  = prefs.getBoolean(PROPERTY_FULL_WAKE, false);
+        endoff    = prefs.getBoolean(PROPERTY_END_OFF, true);
 
         editText1 = (EditText) findViewById(R.id.senderid);
         editText2 = (EditText) findViewById(R.id.serverurl);
-        editText3 = (EditText) findViewById(R.id.pushpak);
-        editText4 = (EditText) findViewById(R.id.pushact);
-        editText5 = (EditText) findViewById(R.id.notiact);
-        editText6 = (EditText) findViewById(R.id.moniact);
+        editText3 = (EditText) findViewById(R.id.pushact);
+        editText4 = (EditText) findViewById(R.id.notifact);
         checkBox1 = (CheckBox) findViewById(R.id.pushon);
-        checkBox2 = (CheckBox) findViewById(R.id.callnoti);
+        checkBox2 = (CheckBox) findViewById(R.id.callnotif);
         checkBox3 = (CheckBox) findViewById(R.id.fullwake);
+        checkBox4 = (CheckBox) findViewById(R.id.endoff);
 
         editText1.setText(senderid);
         editText2.setText(serverurl);
-        editText3.setText(pushpak);
-        editText4.setText(pushact);
-        editText5.setText(notiact);
-        editText6.setText(moniact);
+        editText3.setText(pushact);
+        editText4.setText(notifact);
         checkBox1.setChecked(pushon);
-        checkBox2.setChecked(callnoti);
+        checkBox2.setChecked(callnotif);
         checkBox3.setChecked(fullwake);
+        checkBox4.setChecked(endoff);
     }
 
     private boolean storeParameters() {
-        senderid  = editText1.getText().toString();
+        senderid = editText1.getText().toString();
         if (senderid.isEmpty()) {
             mDisplay.setText(getString(R.string.no_sender_id));
             return false;
         }
+
         serverurl = editText2.getText().toString();
-        pushpak   = editText3.getText().toString();
-        pushact   = editText4.getText().toString();
-        notiact   = editText5.getText().toString();
-        moniact   = editText6.getText().toString();
+
+        pushpak   = "";
+        pushact   = editText3.getText().toString();
+        if (!pushact.isEmpty()) {
+            Intent intent = new Intent(Intent.ACTION_MAIN, null);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            PackageManager mPackageManager = this.getPackageManager();
+            List<ResolveInfo> activitylist = mPackageManager.queryIntentActivities(intent, 0);
+            for (ResolveInfo activity : activitylist) {
+                if (activity.activityInfo.name.equals(pushact) ) {
+                    pushpak = activity.activityInfo.packageName;
+                    break;
+                }
+            }
+            if (pushpak.isEmpty()) {
+                mDisplay.setText(getString(R.string.no_activity));
+                return false;
+            }
+        }
+
+        notifact  = editText4.getText().toString();
         pushon    = checkBox1.isChecked();
-        callnoti  = checkBox2.isChecked();
+        callnotif = checkBox2.isChecked();
         fullwake  = checkBox3.isChecked();
+        endoff    = checkBox4.isChecked();
 
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_SEND_ID, senderid);
         editor.putString(PROPERTY_SERV_URL, serverurl);
         editor.putString(PROPERTY_PUSH_PAK, pushpak);
         editor.putString(PROPERTY_PUSH_ACT, pushact);
-        editor.putString(PROPERTY_NOTI_ACT, notiact);
-        editor.putString(PROPERTY_MONI_ACT, moniact);
+        editor.putString(PROPERTY_NOTIF_ACT, notifact);
         editor.putBoolean(PROPERTY_PUSH_ON, pushon);
-        editor.putBoolean(PROPERTY_CALL_NOTI, callnoti);
+        editor.putBoolean(PROPERTY_CALL_NOTIF, callnotif);
         editor.putBoolean(PROPERTY_FULL_WAKE, fullwake);
+        editor.putBoolean(PROPERTY_END_OFF, endoff);
         editor.commit();
 
         return true;

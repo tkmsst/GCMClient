@@ -1,6 +1,6 @@
 ﻿GCM Client
 ==========
-**Android push client application mainly for CSipSimple**
+**Android push client application mainly for SIP applications**
 
 Sample files for Asterisk are stored in the 'samples' directory.
 
