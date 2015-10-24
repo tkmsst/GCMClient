@@ -94,6 +94,8 @@ public class GcmIntentService extends IntentService {
 
         // Finish if push is not enabled.
         if (!pushon) {
+            // Release the wake lock provided by the WakefulBroadcastReceiver.
+            GcmBroadcastReceiver.completeWakefulIntent(intent);
             return;
         }
 
