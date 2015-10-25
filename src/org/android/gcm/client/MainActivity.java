@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
     private static final String PROPERTY_PUSH_ACT = "push_act";
     private static final String PROPERTY_NOTIF_ACT = "notification_act";
     private static final String PROPERTY_PUSH_ON = "push_on";
-    private static final String PROPERTY_CALL_NOTIF = "call_notification";
+    private static final String PROPERTY_PUSH_NOTIF = "push_notification";
     private static final String PROPERTY_FULL_WAKE = "full_wake";
     private static final String PROPERTY_END_OFF = "end_off";
     private static final String PROTOCOL = "http";
@@ -85,7 +85,7 @@ public class MainActivity extends Activity {
     String pushact;
     String notifact;
     boolean pushon;
-    boolean callnotif;
+    boolean pushnotif;
     boolean fullwake;
     boolean endoff;
 
@@ -360,7 +360,7 @@ public class MainActivity extends Activity {
         pushact   = prefs.getString(PROPERTY_PUSH_ACT, "");
         notifact  = prefs.getString(PROPERTY_NOTIF_ACT, "");
         pushon    = prefs.getBoolean(PROPERTY_PUSH_ON, true);
-        callnotif = prefs.getBoolean(PROPERTY_CALL_NOTIF, true);
+        pushnotif = prefs.getBoolean(PROPERTY_PUSH_NOTIF, true);
         fullwake  = prefs.getBoolean(PROPERTY_FULL_WAKE, false);
         endoff    = prefs.getBoolean(PROPERTY_END_OFF, true);
 
@@ -369,7 +369,7 @@ public class MainActivity extends Activity {
         editText3 = (EditText) findViewById(R.id.pushact);
         editText4 = (EditText) findViewById(R.id.notifact);
         checkBox1 = (CheckBox) findViewById(R.id.pushon);
-        checkBox2 = (CheckBox) findViewById(R.id.callnotif);
+        checkBox2 = (CheckBox) findViewById(R.id.pushnotif);
         checkBox3 = (CheckBox) findViewById(R.id.fullwake);
         checkBox4 = (CheckBox) findViewById(R.id.endoff);
 
@@ -378,7 +378,7 @@ public class MainActivity extends Activity {
         editText3.setText(pushact);
         editText4.setText(notifact);
         checkBox1.setChecked(pushon);
-        checkBox2.setChecked(callnotif);
+        checkBox2.setChecked(pushnotif);
         checkBox3.setChecked(fullwake);
         checkBox4.setChecked(endoff);
     }
@@ -413,7 +413,7 @@ public class MainActivity extends Activity {
 
         notifact  = editText4.getText().toString();
         pushon    = checkBox1.isChecked();
-        callnotif = checkBox2.isChecked();
+        pushnotif = checkBox2.isChecked();
         fullwake  = checkBox3.isChecked();
         endoff    = checkBox4.isChecked();
 
@@ -424,7 +424,7 @@ public class MainActivity extends Activity {
         editor.putString(PROPERTY_PUSH_ACT, pushact);
         editor.putString(PROPERTY_NOTIF_ACT, notifact);
         editor.putBoolean(PROPERTY_PUSH_ON, pushon);
-        editor.putBoolean(PROPERTY_CALL_NOTIF, callnotif);
+        editor.putBoolean(PROPERTY_PUSH_NOTIF, pushnotif);
         editor.putBoolean(PROPERTY_FULL_WAKE, fullwake);
         editor.putBoolean(PROPERTY_END_OFF, endoff);
         editor.commit();

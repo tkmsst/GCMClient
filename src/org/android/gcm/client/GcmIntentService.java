@@ -58,9 +58,9 @@ public class GcmIntentService extends IntentService {
         pushpak = prefs.getString("push_pak", "");
         pushact = prefs.getString("push_act", "");
         final boolean pushon = prefs.getBoolean("push_on", true);
-        final boolean callnotif = prefs.getBoolean("call_notification", true);
+        final boolean pushnotif = prefs.getBoolean("push_notification", true);
 
-        if (callnotif) {
+        if (pushnotif) {
             final String notifact = prefs.getString("notification_act", "");
             Bundle extras = intent.getExtras();
             GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
@@ -158,12 +158,11 @@ public class GcmIntentService extends IntentService {
         NotificationManager mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        PendingIntent contentIntent = null;
+        Intent intent = getPushactIntent(0);
         if (!action.isEmpty()) {
-            Intent intent = getPushactIntent(0);
             intent.setAction(action);
-            contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         }
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this).

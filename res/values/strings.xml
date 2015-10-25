@@ -20,9 +20,9 @@
     <string name="server_url">Server URL</string>
     <string name="push_act">Activity</string>
     <string name="notification_act">Action</string>
-    <string name="push_on">Enable push launch</string>
-    <string name="call_notification">Notify when a push received</string>
-    <string name="full_wake">Turn the screen on when a push received</string>
+    <string name="push_on">Enable to launch the activity from a puch notification</string>
+    <string name="push_notification">Notify when a push notification received</string>
+    <string name="full_wake">Turn the screen on when a push notification received</string>
     <string name="end_off">Turn the screen off after the activity ended</string>
     <string name="set">Set</string>
     <string name="register">Register</string>

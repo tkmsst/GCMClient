@@ -20,8 +20,8 @@
     <string name="server_url">サーバーURL</string>
     <string name="push_act">アクティビティ</string>
     <string name="notification_act">アクション</string>
-    <string name="push_on">プッシュ起動を有効にする</string>
-    <string name="call_notification">プッシュ受信時に通知する</string>
+    <string name="push_on">プッシュによるアクティビティの起動を有効にする</string>
+    <string name="push_notification">プッシュ受信時に通知する</string>
     <string name="full_wake">プッシュ受信時に画面をオンにする</string>
     <string name="end_off">アクティビティ終了後に画面をオフにする</string>
     <string name="set">設定</string>
