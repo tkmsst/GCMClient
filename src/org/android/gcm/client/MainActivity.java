@@ -400,8 +400,12 @@ public class MainActivity extends Activity {
             PackageManager mPackageManager = this.getPackageManager();
             List<ResolveInfo> activitylist = mPackageManager.queryIntentActivities(intent, 0);
             for (ResolveInfo activity : activitylist) {
-                if (activity.activityInfo.name.equals(pushact) ) {
+                if (pushact.equals(activity.activityInfo.name)) {
                     pushpak = activity.activityInfo.packageName;
+                    break;
+                } else if (pushact.equals(activity.activityInfo.packageName)) {
+                    pushpak = pushact;
+                    pushact = activity.activityInfo.name;
                     break;
                 }
             }
@@ -412,6 +416,12 @@ public class MainActivity extends Activity {
         }
 
         notifact  = editText4.getText().toString();
+        if (!notifact.isEmpty()) {
+            if (notifact.charAt(0) == '.') {
+                notifact = pushpak + notifact;
+            }
+        }
+
         pushon    = checkBox1.isChecked();
         pushnotif = checkBox2.isChecked();
         fullwake  = checkBox3.isChecked();

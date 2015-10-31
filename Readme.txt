@@ -18,12 +18,12 @@ Install an application to be launched from a push notification.
 
 Project No :	上記のプロジェクト番号（必須）
 Server URL :	Registration ID を受信するサーバーの URL
-Activity :	プッシュにより起動させるアクティビティ名
+Activity :	プッシュにより起動させるアクティビティ名もしくはパッケージ名
 Action :	プッシュ通知をタップした時に起動するアクション名
 
 Project No :	Project No. obtained above (mandatory)
 Server URL :	Server URL receives Registration ID
-Activity :	Activity name to be launched from a push notification
+Activity :	Activity name or package name to be launched from a push notification
 Action :	Action name to be launched by tapping the notification
 
 
@@ -41,15 +41,15 @@ Action :	(blank)
 [Sample file]
 
 <cURL>
-gcm.bat :		Windows 用プッシュ発信スクリプト
-gcm.sh :		Linux 用プッシュ発信スクリプト
+gcm.bat :	Windows 用プッシュ発信スクリプト
+gcm.sh :	Linux 用プッシュ発信スクリプト
 
-gcm.bat :		Push script for Windows
-gcm.sh :		Push script for Linux
+gcm.bat :	Push script for Windows
+gcm.sh :	Push script for Linux
 
 <Asterisk>
 extensions.conf :	ダイヤルプラン
-extensions2.conf :	固定回線共用ダイヤルプラン
+queues.conf:		コールキュー
 
 extensions.conf :	Dialplan
-extensions2.conf :	Dialplan with a fixed l
+queues.conf:		call queues

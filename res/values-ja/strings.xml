@@ -32,7 +32,7 @@
     <string name="registered">デバイスを登録しました</string>
     <string name="sent">Registration IDを送信しました</string>
     <string name="no_sender_id">プロジェクト番号が空です</string>
-    <string name="no_activity">アクティビティが存在しません</string>
+    <string name="no_activity">アクティビティまたはパッケージが存在しません</string>
     <string name="error">エラー</string>
     <string name="send_error">送信エラー</string>
     <string name="deleted">サーバーのメッセージを削除しました</string>

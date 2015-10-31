@@ -32,7 +32,7 @@
     <string name="registered">Device registered</string>
     <string name="sent">Registration ID sent</string>
     <string name="no_sender_id">Project No is empty</string>
-    <string name="no_activity">Activity does not exist</string>
+    <string name="no_activity">Activity or package does not exist</string>
     <string name="error">Error</string>
     <string name="send_error">Send error</string>
     <string name="deleted">Deleted messages on server</string>
