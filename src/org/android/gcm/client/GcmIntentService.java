@@ -131,10 +131,11 @@ public class GcmIntentService extends IntentService {
                     Intent.FLAG_ACTIVITY_NO_ANIMATION |
                     Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
             // Wait to register.
-            SystemClock.sleep(REGISTER_DURATION);
-        } catch (Exception e) {
+            Thread.sleep(REGISTER_DURATION);
+        } catch (android.content.ActivityNotFoundException e) {
             RING_DURATION = 0;
             Log.i(TAG, "Activity not started");
+        } catch (InterruptedException e) {
         }
 
         // Release the wake lock.
@@ -145,7 +146,10 @@ public class GcmIntentService extends IntentService {
 
         // Restore the screen timeout setting.
         if (endoff && mScreenTimeout != 0) {
-            SystemClock.sleep(RING_DURATION);
+            try {
+                Thread.sleep(RING_DURATION);
+            } catch (InterruptedException e) {
+            }
             Settings.System.putInt(getContentResolver(),
                     Settings.System.SCREEN_OFF_TIMEOUT, mScreenTimeout);
         }
