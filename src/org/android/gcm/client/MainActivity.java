@@ -36,6 +36,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -196,14 +197,6 @@ public class MainActivity extends Activity {
                     regid = gcm.register(senderid);
                     msg = getString(R.string.registered);
 
-                    // You should send the registration ID to your server over HTTP, so it
-                    // can use GCM/HTTP or CCS to send messages to your app.
-                    sendRegistrationIdToBackend();
-
-                    // For this demo: we don't need to send it because the device will send
-                    // upstream messages to a server that echo back the message using the
-                    // 'from' address in the message.
-
                     // Persist the regID - no need to register again.
                     storeRegistrationId(regid);
                 } catch (IOException ex) {
@@ -243,8 +236,9 @@ public class MainActivity extends Activity {
                 @Override
                 protected String doInBackground(Void... params) {
                     String msg = "";
-                    sendRegistrationIdToBackend();
-                    msg = getString(R.string.sent);
+                    msg = sendRegistrationIdToBackend();
+                    if (msg.isEmpty())
+                       msg = getString(R.string.sent);
                     return msg;
                 }
 
@@ -292,7 +286,7 @@ public class MainActivity extends Activity {
      * messages to your app. Not needed for this demo since the device sends upstream messages
      * to a server that echoes back the message using the 'from' address in the message.
      */
-    private void sendRegistrationIdToBackend() {
+    private String sendRegistrationIdToBackend() {
         String fserverurl;
         if (serverurl.startsWith(PROTOCOL)) {
             fserverurl = serverurl;
@@ -301,14 +295,16 @@ public class MainActivity extends Activity {
         }
         Map<String, String> params = new HashMap<String, String>();
         params.put("regid", regid);
+        String msg = "";
         try {
-            post(fserverurl, params);
+            msg = post(fserverurl, params);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return msg;
     }
 
-    private static void post(String endpoint, Map<String, String> params)
+    private static String post(String endpoint, Map<String, String> params)
             throws IOException {
         URL url;
         try {
@@ -330,6 +326,8 @@ public class MainActivity extends Activity {
         String body = bodyBuilder.toString();
         byte[] bytes = body.getBytes();
         HttpURLConnection conn = null;
+        InputStream in = null;
+        String msg = "";
         try {
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
@@ -346,12 +344,21 @@ public class MainActivity extends Activity {
             int status = conn.getResponseCode();
             if (status != 200) {
                 throw new IOException("Post failed with error code " + status);
+            } else {
+                in = conn.getInputStream();
+                byte response[] = new byte[1024];
+                in.read(response);
+                msg = new String(response, "UTF-8");
             }
         } finally {
             if (conn != null) {
                 conn.disconnect();
             }
+            if (in != null) {
+                in.close();
+            }
         }
+        return msg;
     }
 
     private void setParameters() {

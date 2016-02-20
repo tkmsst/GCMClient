@@ -40,12 +40,16 @@ Action :	(blank)
 
 [Sample file]
 
-<cURL>
-gcm.bat :	Windows 用プッシュ発信スクリプト
+<Script>
+gcm.bat :	Windows 用プッシュ発信バッチファイル
 gcm.sh :	Linux 用プッシュ発信スクリプト
+gcm.dat :	Registration ID リスト
+reg.php :	ID 登録用 PHP スクリプト
 
-gcm.bat :	Push script for Windows
+gcm.bat :	Push batch file for Windows
 gcm.sh :	Push script for Linux
+gcm.dat :	Registration ID list
+reg.php :	PHP script to register ID
 
 <Asterisk>
 extensions.conf :	ダイヤルプラン
